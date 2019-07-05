@@ -18,7 +18,8 @@ routes.post('/sessions', ControleSessao.store);
 
 routes.use(okMiddleware);
 
-routes.post('/meetup', MeetupControler.store);
+routes.post('/meetups', MeetupControler.store);
+routes.put('/meetups/', MeetupControler.update);
 
 routes.put('/users', UserController.update);
 

@@ -15,9 +15,10 @@ const upload = multer(multerConfig);
 
 routes.post('/users', UserController.store);
 routes.post('/sessions', ControleSessao.store);
-routes.post('/meetup', MeetupControler.store);
 
 routes.use(okMiddleware);
+
+routes.post('/meetup', MeetupControler.store);
 
 routes.put('/users', UserController.update);
 

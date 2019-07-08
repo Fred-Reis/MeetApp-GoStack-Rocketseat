@@ -2,6 +2,8 @@ import * as Yup from 'yup';
 import { isBefore, parseISO, startOfDay } from 'date-fns';
 
 import Meetup from '../models/Meetup';
+import User from '../models/User';
+import File from '../models/File';
 
 class MeetupController {
   async store(req, res) {
@@ -67,6 +69,46 @@ class MeetupController {
     } catch (err) {
       return res.status(400).json({ error: 'Meetup inexistente!' });
     }
+  }
+
+  async index(req, res) {
+    const meetups = await Meetup.findAll({
+      where: { org_id: req.userId },
+      order: ['data'],
+      attributes: ['id', 'data', 'titulo', 'local'],
+      include: [
+        {
+          model: User,
+          as: 'org',
+          attributes: ['id', 'name'],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+    });
+
+    return res.json(meetups);
+  }
+
+  async delete(req, res) {
+    const meetups = await Meetup.findByPk(req.params.id);
+
+    if (meetups.org_id !== req.userId) {
+      return res
+        .status(401)
+        .json({ error: 'Ação somente permitida ao organizador!' });
+    }
+
+    if (isBefore(meetups.data, new Date())) {
+      return res.status(400).json({ error: 'Esse Meetup já aconteceu!' });
+    }
+
+    await meetups.destroy();
+
+    return res.json(meetups);
   }
 }
 
